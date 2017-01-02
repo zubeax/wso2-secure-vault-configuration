@@ -53,9 +53,12 @@ from the collected information.
 
 ## Getting Started
 
-Install the scripts and the prerequisite perl modules, the execute the script as
+Install the scripts and the prerequisite perl modules, then execute the script as
 
-    [axel@fc25 bin]$ ./wso2ciphertoolconfig.pl /opt/wso2/wso2am-1.10 /opt/wso2/wso2am-1.10/
+    [axel@fc25 bin]$ ./wso2ciphertoolconfig.pl -v /opt/wso2/wso2am-1.10
+
+Adapt the <carbonhome> location to your installation.
+
 
 Sample output 
 
@@ -126,7 +129,7 @@ and encrypt the plaintext passwords in the configuration files :
 
 The 'wso2runjavaciphertool.sh' from the repository wraps this into a single command. 
 It also takes care of a [pending issue in WSO2 API Manager 1.10](https://wso2.org/jira/browse/IDENTITY-4276).
-If the password is not provided on the command line, the tool will prompt for it interactively.
+(If the password is not provided on the command line with the '-p' option, the tool will prompt for it interactively).
     
     [axel@fc25 bin]$ ./wso2runjavaciphertool.sh -p wso2carbon /opt/wso2/wso2am-1.10
 
