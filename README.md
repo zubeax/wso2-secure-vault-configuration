@@ -2,43 +2,43 @@
 
 Create WSO2 Secure Vault configuration
 
-This repository contains a perl script that simplifies the use of [WSO2's Secure Vault](https://docs.wso2.com/display/Carbon440/Encrypting+Passwords+with+Cipher+Tool) feature.
+This repository contains a perl script that simplifies the use of [WSO2's Secure Vault](https://docs.wso2.com/display/Carbon440/Securing+Passwords+in+Configuration+Files) feature.
 
 The script scans the configuration files of a WSO2 product for plain text passwords and generates
 the configuration files
 
-        cipher-text.properties
-        cipher-tool.properties
+    cipher-text.properties
+    cipher-tool.properties
 
 from the collected information.
 
 
 ## Prerequisites
 
-- perl 5.008 and newer
-- perl modules :
+    - perl 5.008 and newer
+    - perl modules :
 
- Carp
- File::Basename
- File::Find
- File::Spec
- Getopt::Long
- Getopt::Std
- IO::File
- Time::HiRes
- XML::Parser
- XML::SAX::ParserFactory
- XML::Simple
+    - Carp
+    - File::Basename
+    - File::Find
+    - File::Spec
+    - Getopt::Long
+    - Getopt::Std
+    - IO::File
+    - Time::HiRes
+    - XML::Parser
+    - XML::SAX::ParserFactory
+    - XML::Simple
  
 ## Tested with WSO2 API Manager 
 
-- version 1.10
+    - version 1.10
 
 ## Tested on 
 
-- Fedora 22, 24, 25
-- Centos7
-- Cygwin 
+    - Fedora 22, 24, 25
+    - Centos7
+    - Cygwin 
 
 
 ## Usage
@@ -50,6 +50,7 @@ from the collected information.
         -v      be verbose
         -x      list available SAX parsers and exit
                 (this is for debugging only)
+
 ## Getting Started
 
 Install the scripts and the prerequisite perl modules, the execute the script as
@@ -190,6 +191,15 @@ If the password is not provided on the command line, the tool will prompt for it
     Encryption is done Successfully
     Encryption is done Successfully
     Secret Configurations are written to the property file successfully
+
+
+## Starting the API Manager with encrypted passwords
+
+After [creating a temporary password file](https://docs.wso2.com/display/Carbon440/Resolving+Encrypted+Passwords)
+
+    <CARBON_HOME>/password-tmp
+
+with the password for the carbon keystore you can now start the API Manager.
 
 
 ## Known Bugs
