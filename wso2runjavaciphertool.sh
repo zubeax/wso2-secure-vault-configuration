@@ -7,6 +7,7 @@
 # configuration file of an installed product and replace the     #
 # plaintext passwords in the wso2 configuration files by         #
 # an alias reference to the encrypted password.                  #
+#                                                                #
 # -------------------------------------------------------------- #
 #                                                                #
 #  Options    :                                                  #
@@ -14,24 +15,42 @@
 #  -h              print help                                    #
 #  -change         execute the ciphertool for 'change'           #
 #                                                                #
+# -------------------------------------------------------------- #
+#                                                                #
 #  Parameters :                                                  #
 #                                                                #
-#  ${1}	 : wso2 api manager product                              #
+#  ${1}	           CARBON_HOME directory of installed product    #
+#                                                                #
+# -------------------------------------------------------------- #
+#                                                                #
+#  Environment Variables                                         #
+#                                                                #
+#  JAVA_HOME       optional, if undefined the script tries to    #
+#                  derive JAVA_HOME from the location of the     #
+#                  'java' executable.                            #
+#                                                                #
+# -------------------------------------------------------------- #
+#                                                                #
+# return codes :                                                 #
+#                                                                #
+#  0     operation successful                                    #
+#  1     operation not started                                   #
+# -4     parameters invalid                                      #
+# -8     no java installation found                              #
+# 16     operation of ciphertool utility was aborted             #
 #                                                                #
 # -------------------------------------------------------------- #
 
 #set -vx
 
-export usage="usage: $(basename ${0}) [-change] singlenode|gateway|keymanager|pubstore"
+export usage="usage: $(basename ${0}) [-change] [-p <storekeypassword>] <carbonhome>"
 export hostname=$(hostname -f)
 
 ##
 #   process options
 ## 
 
-lockstore=''
 opisupdate=''
-debugopts=''
 
 while [[ "${1}" =~ ^-.* ]];
 do
@@ -42,7 +61,7 @@ do
       -h)   echo "$usage";
             exit 1
             ;;
-      -p)   storekeypass="${2}";
+      -p)   storekeypass="-Dpassword=${2}";
             shift;
             shift;
             ;;
@@ -58,7 +77,8 @@ carbonhome="${1}"
 ##
 
 if [ x"${carbonhome}" == x ]; then
-    echo "CARBON_HOME is not defined"
+    echo "<carbonhome> is not defined"
+    echo "$usage";
     exit 1
 fi
 
@@ -67,10 +87,21 @@ if [ ! -d "${carbonhome}" ]; then
     exit -4
 fi
 
+##
+# update environment variables
+##
+
 export CARBON_HOME=${carbonhome}
 
-javabin=$(dirname $(readlink -f $(which java)))
-export JAVA_HOME=$(readlink -f "$javabin/..")
+if [ x"${JAVA_HOME}" == x ]; then
+    javabin=$(which java)
+    if [ ! x"${javabin}" == x ]; then
+        echo "no 'java' executable found"
+        exit -8
+    fi
+    javabin=$(dirname $(readlink -f $javabin))
+    export JAVA_HOME=$(readlink -f "$javabin/..")
+fi
 
 export PATH=${JAVA_BASE}/bin:${CARBON_HOME}/bin:$PATH
 
@@ -104,11 +135,11 @@ done
 
 CARBON_CLASSPATH=$CARBON_CLASSPATH:$CLASSPATH
 
-echo "CARBONHOME      : ${CARBON_HOME}"
-echo "JAVA_HOME       : $JAVA_HOME"
+echo "CARBONHOME : ${CARBON_HOME}"
+echo "JAVA_HOME  : $JAVA_HOME"
 
 ##
-# execute the ciphertool utility. compress the output by removing empty lines
+# execute the ciphertool utility.
 ##
 
 ciphertooloperation='configure'
@@ -116,7 +147,7 @@ if [ x$opisupdate != x ]; then
 	ciphertooloperation='change'
 fi
 
-$JAVA_HOME/bin/java ${debugopts} -Dcarbon.home="$CARBON_HOME" -classpath "$CARBON_CLASSPATH" org.wso2.ciphertool.CipherTool -D${ciphertooloperation} -Dpassword=$storekeypass
+$JAVA_HOME/bin/java -Dcarbon.home="$CARBON_HOME" -classpath "$CARBON_CLASSPATH" org.wso2.ciphertool.CipherTool -D${ciphertooloperation} $storekeypass
 if [ $? -ne 0 ]; then
 	exit 16
 fi
