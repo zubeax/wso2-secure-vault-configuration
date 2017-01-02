@@ -51,7 +51,8 @@ from the collected information.
         -x      list available SAX parsers and exit
                 (this is for debugging only)
 
-## Getting Started
+
+## Step 1 : Generate Secure Vault properties files
 
 Install the scripts and the prerequisite perl modules, then execute the script as
 
@@ -63,12 +64,12 @@ Adapt the <carbonhome> location to your installation.
 Sample output 
 
     FILE : /opt/wso2/wso2am-1.10/repository/conf/api-manager.xml
-    ====>: /APIManager/AuthManager/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
-    ====>: /APIManager/APIGateway/Environments/Environment/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
+    ====>: /APIManager/AuthManager/Password=[j7W4zQmLgjnFvBMP]
+    ====>: /APIManager/APIGateway/Environments/Environment/Password=[j7W4zQmLgjnFvBMP]
     ====>: /APIManager/APIUsageTracking/DASPassword=[admin]
     ====>: /APIManager/APIUsageTracking/DASRestApiPassword=[admin]
-    ====>: /APIManager/APIKeyValidator/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
-    ====>: /APIManager/APIStore/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
+    ====>: /APIManager/APIKeyValidator/Password=[j7W4zQmLgjnFvBMP]
+    ====>: /APIManager/APIStore/Password=[j7W4zQmLgjnFvBMP]
 
     FILE : /opt/wso2/wso2am-1.10/repository/conf/axis2/axis2.xml
     ====>: /axisconfig/transportReceiver[@name='https']/parameter[@name='keystore']/KeyStore/Password=[wso2carbon]
@@ -110,18 +111,23 @@ Sample output
     ====>: /Server/Service/Connector[@keystorePass]=[wso2carbon]
 
     FILE : /opt/wso2/wso2am-1.10/repository/conf/user-mgt.xml
-    ====>: /UserManager/Realm/Configuration/AdminUser/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
+    ====>: /UserManager/Realm/Configuration/AdminUser/Password=[j7W4zQmLgjnFvBMP]
 
     Found 28 passwords in 11 out of 45 files.
     Created output files :
     /opt/wso2/wso2am-1.10/repository/conf/security/cipher-tool.properties
     /opt/wso2/wso2am-1.10/repository/conf/security/cipher-text.properties
 
+In verbose mode (with the '-v' option) the script logs every password with an XPath expression specifying the password location 
+and the actual password (trailing the line in '[',']' ).
+
+
+## Step 2 : Run the Secure Vault ciphertool utility
 
 Now you can run WSO2's ciphertool.sh script (that comes with the product) to go over the configuration files 
 and encrypt the plaintext passwords in the configuration files :
 
-    [axel@fc25 bin]$ export CARBON_HOME=/mnt/ssd/wso2/site1/wso2am_keymanager
+    [axel@fc25 bin]$ export CARBON_HOME=/opt/wso2/wso2am-1.10
     [axel@fc25 bin]$ export JAVA_HOME=/opt/jdk1.8.0_60
     [axel@fc25 bin]$ export PATH=$JAVA_HOME/bin:$PATH
     [axel@fc25 bin]$ ${CARBON_HOME}/bin/ciphertool.sh -Dconfigure -Dpassword=wso2carbon
@@ -132,7 +138,6 @@ It also takes care of a [pending issue in WSO2 API Manager 1.10](https://wso2.or
 (If the password is not provided on the command line with the '-p' option, the tool will prompt for it interactively).
     
     [axel@fc25 bin]$ ./wso2runjavaciphertool.sh -p wso2carbon /opt/wso2/wso2am-1.10
-
     
     Primary KeyStore of Carbon Server is initialized Successfully
     Protected Token [Axis2.Https.Listener.TrustStore.Password] is updated in repository/conf/axis2/axis2.xml successfully
@@ -167,30 +172,8 @@ It also takes care of a [pending issue in WSO2 API Manager 1.10](https://wso2.or
     Encryption is done Successfully
     Encryption is done Successfully
     Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
-    Encryption is done Successfully
+    .
+    .
     Encryption is done Successfully
     Encryption is done Successfully
     Secret Configurations are written to the property file successfully
@@ -211,5 +194,7 @@ The perl script throws a warning when parsing user-mgt.xml.
 
     Warning: <Property> element has non-unique value in 'name' key attribute: MaxUserNameListLength at ./wso2ciphertoolconfig.pl line 333.
 
-This can be ignored since the warning is correct. 
+This can be ignored since the warning is correct.
+```xml
 ('<Property name="MaxUserNameListLength">100</Property>' is defined twice in user-mgt.xml).
+```
