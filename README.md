@@ -1,2 +1,201 @@
 # wso2-secure-vault-configuration
+
 Create WSO2 Secure Vault configuration
+
+This repository contains a perl script that simplifies the use of [WSO2's Secure Vault](https://docs.wso2.com/display/Carbon440/Encrypting+Passwords+with+Cipher+Tool) feature.
+
+The script scans the configuration files of a WSO2 product for plain text passwords and generates
+the configuration files
+
+        cipher-text.properties
+        cipher-tool.properties
+
+from the collected information.
+
+
+## Prerequisites
+
+- perl 5.008 and newer
+- perl modules :
+
+ Carp
+ File::Basename
+ File::Find
+ File::Spec
+ Getopt::Long
+ Getopt::Std
+ IO::File
+ Time::HiRes
+ XML::Parser
+ XML::SAX::ParserFactory
+ XML::Simple
+ 
+## Tested with WSO2 API Manager 
+
+- version 1.10
+
+## Tested on 
+
+- Fedora 22, 24, 25
+- Centos7
+- Cygwin 
+
+
+## Usage
+
+    wso2ciphertoolconfig.pl [-dhvx] <carbonhome>"
+
+        -d      debug
+        -h      print usage and exit
+        -v      be verbose
+        -x      list available SAX parsers and exit
+                (this is for debugging only)
+## Getting Started
+
+Install the scripts and the prerequisite perl modules, the execute the script as
+
+    [axel@fc25 bin]$ ./wso2ciphertoolconfig.pl /opt/wso2/wso2am-1.10 /opt/wso2/wso2am-1.10/
+
+Sample output 
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/api-manager.xml
+    ====>: /APIManager/AuthManager/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
+    ====>: /APIManager/APIGateway/Environments/Environment/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
+    ====>: /APIManager/APIUsageTracking/DASPassword=[admin]
+    ====>: /APIManager/APIUsageTracking/DASRestApiPassword=[admin]
+    ====>: /APIManager/APIKeyValidator/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
+    ====>: /APIManager/APIStore/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/axis2/axis2.xml
+    ====>: /axisconfig/transportReceiver[@name='https']/parameter[@name='keystore']/KeyStore/Password=[wso2carbon]
+    ====>: /axisconfig/transportReceiver[@name='https']/parameter[@name='keystore']/KeyStore/KeyPassword=[wso2carbon]
+    ====>: /axisconfig/transportReceiver[@name='https']/parameter[@name='truststore']/TrustStore/Password=[wso2carbon]
+    ====>: /axisconfig/transportSender[@name='https']/parameter[@name='keystore']/KeyStore/Password=[wso2carbon]
+    ====>: /axisconfig/transportSender[@name='https']/parameter[@name='keystore']/KeyStore/KeyPassword=[wso2carbon]
+    ====>: /axisconfig/transportSender[@name='https']/parameter[@name='truststore']/TrustStore/Password=[wso2carbon]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/axis2/axis2_blocking_client.xml
+    ====>: /axisconfig/parameter[@name='password']=[axis2]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/axis2/axis2_client.xml
+    ====>: /axisconfig/parameter[@name='password']=[axis2]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/carbon.xml
+    ====>: /Server/Security/KeyStore/Password=[wso2carbon]
+    ====>: /Server/Security/KeyStore/KeyPassword=[wso2carbon]
+    ====>: /Server/Security/TrustStore/Password=[wso2carbon]
+    ====>: /Server/DeploymentSynchronizer/SvnPassword=[password]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/datasources/master-datasources.xml
+    ====>: /datasources-configuration/datasources/datasource[name='WSO2_CARBON_DB']/definition[@type='RDBMS']/configuration/password=[wso2carbon]
+    ====>: /datasources-configuration/datasources/datasource[name='WSO2AM_DB']/definition[@type='RDBMS']/configuration/password=[mysqlpass]
+    ====>: /datasources-configuration/datasources/datasource[name='WSO2UM_DB']/definition[@type='RDBMS']/configuration/password=[mysqlpass]
+    ====>: /datasources-configuration/datasources/datasource[name='WSO2AM_STATS_DB']/definition[@type='RDBMS']/configuration/password=[mysqlpass]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/datasources/metrics-datasources.xml
+    ====>: /datasources-configuration/datasources/datasource[name='WSO2_METRICS_DB']/definition[@type='RDBMS']/configuration/password=[wso2carbon]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/identity/application-authentication.xml
+    ====>: /ApplicationAuthentication/AuthenticatorConfigs/AuthenticatorConfig[@name='OpenIDAuthenticator']/Parameter[@name='TrustStorePassword']=[wso2carbon]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/identity/identity.xml
+    ====>: /Server/MultifactorAuthentication/XMPPSettings/XMPPConfig/XMPPPassword=[wso2carbon]
+    ====>: /Server/EntitlementSettings/ThirftBasedEntitlementConfig/KeyStore/Password=[wso2carbon]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/tomcat/catalina-server.xml
+    ====>: /Server/Service/Connector[@keystorePass]=[wso2carbon]
+
+    FILE : /opt/wso2/wso2am-1.10/repository/conf/user-mgt.xml
+    ====>: /UserManager/Realm/Configuration/AdminUser/Password=[9Rl6v7MlnqYLPbt91jovpLBL7nwbA]
+
+    Found 28 passwords in 11 out of 45 files.
+    Created output files :
+    /opt/wso2/wso2am-1.10/repository/conf/security/cipher-tool.properties
+    /opt/wso2/wso2am-1.10/repository/conf/security/cipher-text.properties
+
+
+Now you can run WSO2's ciphertool.sh script (that comes with the product) to go over the configuration files 
+and encrypt the plaintext passwords in the configuration files :
+
+    [axel@fc25 bin]$ export CARBON_HOME=/mnt/ssd/wso2/site1/wso2am_keymanager
+    [axel@fc25 bin]$ export JAVA_HOME=/opt/jdk1.8.0_60
+    [axel@fc25 bin]$ export PATH=$JAVA_HOME/bin:$PATH
+    [axel@fc25 bin]$ ${CARBON_HOME}/bin/ciphertool.sh -Dconfigure -Dpassword=wso2carbon
+
+
+The 'wso2runjavaciphertool.sh' from the repository wraps this into a single command. 
+It also takes care of a [pending issue in WSO2 API Manager 1.10](https://wso2.org/jira/browse/IDENTITY-4276).
+If the password is not provided on the command line, the tool will prompt for it interactively.
+    
+    [axel@fc25 bin]$ ./wso2runjavaciphertool.sh -p wso2carbon /opt/wso2/wso2am-1.10
+
+    
+    Primary KeyStore of Carbon Server is initialized Successfully
+    Protected Token [Axis2.Https.Listener.TrustStore.Password] is updated in repository/conf/axis2/axis2.xml successfully
+    Protected Token [APIUsageTracking.DASPassword] is updated in repository/conf/api-manager.xml successfully
+    Protected Token [UserManager.AdminUser.Password] is updated in repository/conf/user-mgt.xml successfully
+    Protected Token [Axis2.Https.Sender.TrustStore.Password] is updated in repository/conf/axis2/axis2.xml successfully
+    Protected Token [Axis2.Https.Sender.KeyStore.Password] is updated in repository/conf/axis2/axis2.xml successfully
+    Protected Token [APIKeyValidator.Password] is updated in repository/conf/api-manager.xml successfully
+    Protected Token [APIGateway.Password] is updated in repository/conf/api-manager.xml successfully
+    Protected Token [AuthenticatorConfigs.OpenIDAuthenticator.TrustStorePassword] is updated in repository/conf/identity/application-authentication.xml successfully
+    Protected Token [Axis2.Https.Listener.KeyStore.Password] is updated in repository/conf/axis2/axis2.xml successfully
+    Protected Token [Axis2.client] is updated in repository/conf/axis2/axis2_client.xml successfully
+    Protected Token [datasources.WSO2REG_DB.RDBMS.configuration.password] is updated in repository/conf/datasources/master-datasources.xml successfully
+    Protected Token [APIStore.Password] is updated in repository/conf/api-manager.xml successfully
+    Protected Token [Axis2.Https.Listener.KeyStore.KeyPassword] is updated in repository/conf/axis2/axis2.xml successfully
+    Protected Token [Axis2.Https.Sender.KeyStore.KeyPassword] is updated in repository/conf/axis2/axis2.xml successfully
+    Protected Token [DeploymentSynchronizer.SvnPassword] is updated in repository/conf/carbon.xml successfully
+    Protected Token [Carbon.Security.TrustStore.Password] is updated in repository/conf/carbon.xml successfully
+    Protected Token [Axis2.blockingclient] is updated in repository/conf/axis2/axis2_blocking_client.xml successfully
+    Protected Token [EntitlementSettings.ThirftBasedEntitlementConfig.KeyStore.Password] is updated in repository/conf/identity/identity.xml successfully
+    Protected Token [datasources.WSO2_METRICS_DB.RDBMS.configuration.password] is updated in repository/conf/datasources/metrics-datasources.xml successfully
+    Protected Token [Carbon.Security.KeyStore.KeyPassword] is updated in repository/conf/carbon.xml successfully
+    Protected Token [AuthManager.Password] is updated in repository/conf/api-manager.xml successfully
+    Protected Token [datasources.WSO2_CARBON_DB.RDBMS.configuration.password] is updated in repository/conf/datasources/master-datasources.xml successfully
+    Protected Token [datasources.WSO2AM_DB.RDBMS.configuration.password] is updated in repository/conf/datasources/master-datasources.xml successfully
+    Protected Token [datasources.WSO2AM_STATS_DB.RDBMS.configuration.password] is updated in repository/conf/datasources/master-datasources.xml successfully
+    Protected Token [datasources.WSO2UM_DB.RDBMS.configuration.password] is updated in repository/conf/datasources/master-datasources.xml successfully
+    Protected Token [MultifactorAuthentication.XMPPSettings.XMPPConfig.XMPPPassword] is updated in repository/conf/identity/identity.xml successfully
+    Protected Token [Server.Service.Connector.keystorePass] is updated in repository/conf/tomcat/catalina-server.xml successfully
+    Protected Token [Carbon.Security.KeyStore.Password] is updated in repository/conf/carbon.xml successfully
+    Protected Token [APIUsageTracking.DASRestApiPassword] is updated in repository/conf/api-manager.xml successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Encryption is done Successfully
+    Secret Configurations are written to the property file successfully
+
+
+## Known Bugs
+
+The perl script throws a warning when parsing user-mgt.xml. 
+
+    Warning: <Property> element has non-unique value in 'name' key attribute: MaxUserNameListLength at ./wso2ciphertoolconfig.pl line 333.
+
+This can be ignored since it the warning is correct. ("<Property name="MaxUserNameListLength">100</Property>" is defined twice).
