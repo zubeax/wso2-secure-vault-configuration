@@ -211,4 +211,5 @@ The perl script throws a warning when parsing user-mgt.xml.
 
     Warning: <Property> element has non-unique value in 'name' key attribute: MaxUserNameListLength at ./wso2ciphertoolconfig.pl line 333.
 
-This can be ignored since it the warning is correct. ("<Property name="MaxUserNameListLength">100</Property>" is defined twice).
+This can be ignored since the warning is correct. 
+('<Property name="MaxUserNameListLength">100</Property>' is defined twice in user-mgt.xml).
